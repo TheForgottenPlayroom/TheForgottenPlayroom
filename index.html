@@ -71,9 +71,9 @@
             min-width: clamp(160px, 50vw, 220px);
             transition: all 0.3s;
         }
-        .btn:active, .btn:hover {
-            background: linear-gradient(135deg, #16213e, #1a1a2e);
-            transform: scale(0.98);
+        .btn:active {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
         }
         
         .warning {
@@ -155,9 +155,9 @@
             border-radius: 4px;
             transition: width 0.2s;
         }
-        #healthBar { background: linear-gradient(90deg, #f44, #0f0); }
+        #healthBar { background: #0f0; }
         #staminaBar { background: #0af; }
-        #batteryBar { background: linear-gradient(90deg, #fa0, #ff0); }
+        #batteryBar { background: #ff0; }
         
         #chapterDisplay {
             position: fixed;
@@ -171,68 +171,72 @@
             z-index: 10;
         }
         
-        /* ========== CONTROLES TÁCTILES ========== */
-        #controls {
+        /* ========== JOYSTICK VIRTUAL ========== */
+        #joystickArea {
             position: fixed;
-            bottom: 15px;
-            left: 0;
-            right: 0;
-            display: flex;
-            justify-content: space-between;
-            padding: 0 15px;
-            pointer-events: none;
+            bottom: 20px;
+            left: 20px;
+            width: 120px;
+            height: 120px;
             z-index: 50;
+            display: none;
         }
-        #controls > div { pointer-events: auto; }
+        #joystickArea.active { display: block; }
         
-        .dpad {
-            display: grid;
-            grid-template-columns: repeat(3, 50px);
-            grid-template-rows: repeat(3, 50px);
-            gap: 5px;
+        .joystick-base {
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            position: relative;
         }
-        .dpad-btn {
+        
+        .joystick-stick {
             width: 50px;
             height: 50px;
-            background: rgba(255,255,255,0.2);
-            border: 2px solid rgba(255,255,255,0.4);
-            border-radius: 10px;
-            color: #fff;
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.1s;
-        }
-        .dpad-btn:active, .dpad-btn.active {
             background: rgba(255,215,0,0.6);
-            transform: scale(0.95);
+            border: 2px solid rgba(255,215,0,0.8);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
         }
-        .dpad-up { grid-column: 2; grid-row: 1; }
-        .dpad-left { grid-column: 1; grid-row: 2; }
-        .dpad-right { grid-column: 3; grid-row: 2; }
-        .dpad-down { grid-column: 2; grid-row: 3; }
         
-        .actions { display: flex; flex-direction: column; gap: 8px; }
-        .action-row { display: flex; gap: 8px; }
-        .action-btn {
-            width: 55px;
-            height: 55px;
-            background: rgba(255,255,255,0.2);
+        /* ========== BOTONES DE ACCIÓN ========== */
+        #touchActions {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 50;
+            display: none;
+        }
+        #touchActions.active { display: flex; flex-direction: column; gap: 10px; }
+        
+        .touch-row { display: flex; gap: 10px; }
+        
+        .touch-btn {
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.15);
             border: 2px solid rgba(255,255,255,0.4);
             border-radius: 50%;
             color: #fff;
-            font-size: 22px;
+            font-size: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: all 0.1s;
         }
-        .action-btn:active, .action-btn.active {
+        .touch-btn:active {
             background: rgba(255,215,0,0.6);
             transform: scale(0.95);
+        }
+        .touch-btn.active {
+            background: rgba(255,215,0,0.8);
         }
         
         /* ========== OVERLAYS ========== */
@@ -266,51 +270,22 @@
             align-items: center;
             justify-content: center;
             z-index: 90;
-            animation: fadeIn 0.5s;
         }
         #chapterScreen.active { display: flex; }
         #chapterScreen h1 { color: #FFD700; font-size: clamp(1.5rem, 5vw, 2rem); }
         #chapterScreen h2 { color: #888; font-size: clamp(1rem, 4vw, 1.5rem); margin-top: 10px; }
         #chapterScreen p { color: #666; margin-top: 30px; }
         
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
         /* ========== RESPONSIVE ========== */
+        @media (max-width: 600px) {
+            .touch-btn { width: 55px; height: 55px; font-size: 22px; }
+            #joystickArea { width: 100px; height: 100px; }
+        }
+        
         @media (max-width: 400px) {
-            .dpad { grid-template-columns: repeat(3, 40px); grid-template-rows: repeat(3, 40px); gap: 3px; }
-            .dpad-btn { width: 40px; height: 40px; font-size: 16px; }
-            .action-btn { width: 45px; height: 45px; font-size: 18px; }
-            .btn { min-width: 140px; padding: 10px 20px; }
-        }
-        
-        /* ========== EFECTOS DE JUEGO ========== */
-        .screen-flash {
-            position: fixed;
-            inset: 0;
-            background: white;
-            z-index: 100;
-            animation: flashOut 0.3s forwards;
-            pointer-events: none;
-        }
-        @keyframes flashOut {
-            from { opacity: 1; }
-            to { opacity: 0; }
-        }
-        
-        .damage-flash {
-            position: fixed;
-            inset: 0;
-            background: rgba(255, 0, 0, 0.3);
-            z-index: 99;
-            pointer-events: none;
-            animation: damageFade 0.5s forwards;
-        }
-        @keyframes damageFade {
-            from { opacity: 1; }
-            to { opacity: 0; }
+            .touch-btn { width: 50px; height: 50px; font-size: 20px; }
+            #joystickArea { width: 80px; height: 80px; }
+            .joystick-stick { width: 40px; height: 40px; }
         }
     </style>
 </head>
@@ -318,7 +293,7 @@
     <!-- MENÚ PRINCIPAL -->
     <div id="menu">
         <h1 class="title">THE FORGOTTEN PLAYROOM</h1>
-        <p class="subtitle">🎮 Eres el detective - Escapa de los monstruos</p>
+        <p class="subtitle">🎮 Escapa de los monstruos en la fábrica abandonada</p>
         
         <button class="btn" onclick="startGame()">🎯 JUGAR</button>
         <button class="btn" onclick="showOverlay('controlsScreen')">🎮 CONTROLES</button>
@@ -331,18 +306,22 @@
     <div id="controlsScreen" class="overlay">
         <h1>🎮 CÓMO JUGAR</h1>
         <div class="info-box">
-            <p>👤 <strong>Tú eres el detective</strong></p>
-            <p>Tu objetivo: escapar de la fábrica abandonada.</p>
-            <p>🚪 Busca la <strong>zona verde</strong> en cada nivel.</p>
-            <p>🔦 La linterna se recarga automáticamente.</p>
-            <p>🏃 Corre para escapar más rápido.</p>
+            <h3>👤 Tu objetivo</h3>
+            <p>Escapar de la fábrica abandonada.</p>
+            <p>Busca la <span style="color:#0f0">zona verde 🚪</span> para avanzar.</p>
+            <p>Cada capítulo tiene más enemigos.</p>
         </div>
         <div class="info-box">
-            <h3>📱 Controles</h3>
-            <p><strong>Teclado:</strong> WASD o Flechas = Mover</p>
-            <p><strong>Shift/Espacio:</strong> Correr</p>
+            <h3>⌨️ Controles PC</h3>
+            <p><strong>WASD / Flechas:</strong> Mover</p>
+            <p><strong>Shift / Espacio:</strong> Correr</p>
             <p><strong>ESC:</strong> Pausar</p>
-            <p><strong>Móvil:</strong> D-Pad + Botones</p>
+        </div>
+        <div class="info-box">
+            <h3>📱 Controles Móvil</h3>
+            <p><strong>Joystick izquierdo:</strong> Mover</p>
+            <p><strong>🦊 Botón:</strong> Correr</p>
+            <p><strong>⏸️ Botón:</strong> Pausar</p>
         </div>
         <button class="btn" onclick="hideOverlay('controlsScreen')">CERRAR</button>
     </div>
@@ -351,13 +330,13 @@
     <div id="charsScreen" class="overlay">
         <h1>👹 PERSONAJES</h1>
         <div class="info-box">
-            <h3>🟢 PERSONAJES BUENOS</h3>
+            <h3>🟢 ALIADOS</h3>
             <div class="char char-good">
-                <p><strong>👤 TÚ - Detective</strong></p>
+                <p>👤 <strong>TÚ - Detective</strong></p>
                 <p style="color:#0f0">Eres el protagonista. ¡Escapa!</p>
             </div>
             <div class="char char-good">
-                <p><strong>📺 Tecno Player</strong></p>
+                <p>📺 <strong>Tecno Player</strong></p>
                 <p style="color:#0af">Robot aliado (Capítulo 2+)</p>
             </div>
         </div>
@@ -395,25 +374,18 @@
         
         <div id="chapterDisplay">Capítulo 1</div>
         
-        <!-- CONTROLES TÁCTILES -->
-        <div id="controls">
-            <div>
-                <div class="dpad">
-                    <button class="dpad-btn dpad-up" data-key="ArrowUp">▲</button>
-                    <button class="dpad-btn dpad-left" data-key="ArrowLeft">◄</button>
-                    <button class="dpad-btn dpad-right" data-key="ArrowRight">►</button>
-                    <button class="dpad-btn dpad-down" data-key="ArrowDown">▼</button>
-                </div>
+        <!-- JOYSTICK VIRTUAL (MÓVIL) -->
+        <div id="joystickArea">
+            <div class="joystick-base" id="joystickBase">
+                <div class="joystick-stick" id="joystickStick"></div>
             </div>
-            <div class="actions">
-                <div class="action-row">
-                    <button class="action-btn" id="btnFlashlight">🔦</button>
-                    <button class="action-btn" id="btnInteract">✋</button>
-                </div>
-                <div class="action-row">
-                    <button class="action-btn" id="btnRun">🏃</button>
-                    <button class="action-btn" id="btnPause">⏸️</button>
-                </div>
+        </div>
+        
+        <!-- BOTONES DE ACCIÓN (MÓVIL) -->
+        <div id="touchActions">
+            <div class="touch-row">
+                <button class="touch-btn" id="btnRun">🏃</button>
+                <button class="touch-btn" id="btnPause">⏸️</button>
             </div>
         </div>
     </div>
@@ -422,7 +394,7 @@
     <div id="chapterScreen">
         <h1 id="chapTitle">Capítulo 1</h1>
         <h2 id="chapSub">La Entrada</h2>
-        <p>Presiona para continuar...</p>
+        <p>Toca para continuar...</p>
     </div>
     
     <!-- PAUSA -->
@@ -451,11 +423,16 @@
 
     <script>
     // ========================================
-    // THE FORGOTTEN PLAYROOM - GAME ENGINE
+    // THE FORGOTTEN PLAYROOM - MOBILE READY
     // ========================================
     
     // ========== CONFIGURACIÓN ==========
     const CONFIG = {
+        // Detectar móvil
+        IS_MOBILE: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                   ('ontouchstart' in window) || 
+                   (navigator.maxTouchPoints > 0),
+        
         // Jugador
         PLAYER_SIZE: 24,
         PLAYER_SPEED: 5,
@@ -469,15 +446,15 @@
         
         // Enemigos
         ENEMY_BASE_SPEED: 0.8,
-        ENEMY_CHASE_SPEED: 1.5,
+        ENEMY_CHASE_SPEED: 1.2,
         ENEMY_RANGE: 200,
         ENEMY_DAMAGE: 5,
         SAFE_DISTANCE: 350,
-        INVINCIBLE_TIME: 90,   // 1.5 segundos
+        INVINCIBLE_TIME: 90,
         
-        // Visual
+        // Visual (optimizado para móvil)
         FLASHLIGHT_RADIUS: 280,
-        VIEW_RADIUS: 100,      // Visibilidad mínima
+        VIEW_RADIUS: 100,
         TILE_SIZE: 40,
         
         // Juego
@@ -487,17 +464,21 @@
     
     // ========== ESTADO GLOBAL ==========
     let canvas, ctx, W, H;
-    let state = 'menu';      // menu, playing, paused, gameover, victory
+    let state = 'menu';
     let chapter = 1;
     let player = null;
     let enemies = [];
     let exit = null;
     let keys = {};
+    let joystickInput = { x: 0, y: 0 };
+    let isRunning = false;
     let invincible = false;
     let invincibleTimer = 0;
-    let lastTime = 0;
-    let deltaTime = 0;
     let frameCount = 0;
+    let isMobile = CONFIG.IS_MOBILE;
+    
+    // Audio context para sonidos
+    let audioCtx = null;
     
     // ========== INICIALIZACIÓN ==========
     function init() {
@@ -508,15 +489,65 @@
         window.addEventListener('resize', resize);
         
         setupInput();
+        setupMobileControls();
+        
+        // Mostrar controles móviles si es necesario
+        if (isMobile) {
+            document.getElementById('joystickArea').classList.add('active');
+            document.getElementById('touchActions').classList.add('active');
+        }
+        
         requestAnimationFrame(gameLoop);
         
         console.log('🎮 The Forgotten Playroom - Ready');
+        console.log('📱 Mobile:', isMobile ? 'Sí' : 'No');
     }
     
     function resize() {
         W = canvas.width = window.innerWidth;
         H = canvas.height = window.innerHeight;
         exit = { x: W - 100, y: H - 100, radius: 50 };
+    }
+    
+    // ========== AUDIO ==========
+    function playSound(type) {
+        if (!audioCtx) {
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            } catch(e) { return; }
+        }
+        
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        
+        switch(type) {
+            case 'damage':
+                oscillator.frequency.setValueAtTime(200, audioCtx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.2);
+                gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.2);
+                break;
+            case 'pickup':
+                oscillator.frequency.setValueAtTime(400, audioCtx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.1);
+                gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.1);
+                break;
+            case 'ambient':
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(80, audioCtx.currentTime);
+                gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.5);
+                break;
+        }
     }
     
     // ========== INPUT ==========
@@ -531,57 +562,85 @@
         });
         window.addEventListener('keyup', e => keys[e.code] = false);
         
-        // D-Pad táctil
-        document.querySelectorAll('.dpad-btn').forEach(btn => {
-            const key = btn.dataset.key;
-            btn.addEventListener('touchstart', e => {
-                e.preventDefault();
-                keys[key] = true;
-                btn.classList.add('active');
-            });
-            btn.addEventListener('touchend', e => {
-                e.preventDefault();
-                keys[key] = false;
-                btn.classList.remove('active');
-            });
+        // Cerrar pantalla de capítulo
+        document.getElementById('chapterScreen').addEventListener('click', () => {
+            document.getElementById('chapterScreen').classList.remove('active');
         });
         
-        // Botones de acción
-        const btnFlashlight = document.getElementById('btnFlashlight');
-        const btnRun = document.getElementById('btnRun');
-        const btnPause = document.getElementById('btnPause');
-        const btnInteract = document.getElementById('btnInteract');
-        
-        btnFlashlight.addEventListener('touchstart', e => {
-            e.preventDefault();
-            if (player) player.battery = player.battery > 0 ? 0 : CONFIG.PLAYER_MAX_BATTERY;
-        });
-        
-        btnRun.addEventListener('touchstart', e => {
-            e.preventDefault();
-            keys['Space'] = true;
-            btnRun.classList.add('active');
-        });
-        btnRun.addEventListener('touchend', e => {
-            e.preventDefault();
-            keys['Space'] = false;
-            btnRun.classList.remove('active');
-        });
-        
-        btnPause.addEventListener('touchstart', e => {
+        // Pausar botón móvil
+        document.getElementById('btnPause').addEventListener('touchstart', e => {
             e.preventDefault();
             if (state === 'playing') pauseGame();
             else if (state === 'paused') resumeGame();
         });
+    }
+    
+    // ========== CONTROLES MÓVILES ==========
+    function setupMobileControls() {
+        const joystickBase = document.getElementById('joystickBase');
+        const joystickStick = document.getElementById('joystickStick');
+        const btnRun = document.getElementById('btnRun');
         
-        btnInteract.addEventListener('touchstart', e => {
+        let joystickActive = false;
+        let joystickCenter = { x: 0, y: 0 };
+        
+        // Joystick touch
+        joystickBase.addEventListener('touchstart', e => {
             e.preventDefault();
-            // Interactuar con objetos (pendiente)
+            joystickActive = true;
+            const touch = e.touches[0];
+            const rect = joystickBase.getBoundingClientRect();
+            joystickCenter = {
+                x: rect.left + rect.width / 2,
+                y: rect.top + rect.height / 2
+            };
+            updateJoystick(touch.clientX, touch.clientY, joystickStick, joystickBase);
         });
         
-        // Cerrar pantalla de capítulo con click/tap
-        document.getElementById('chapterScreen').addEventListener('click', () => {
-            document.getElementById('chapterScreen').classList.remove('active');
+        joystickBase.addEventListener('touchmove', e => {
+            e.preventDefault();
+            if (!joystickActive) return;
+            const touch = e.touches[0];
+            updateJoystick(touch.clientX, touch.clientY, joystickStick, joystickBase);
+        });
+        
+        joystickBase.addEventListener('touchend', e => {
+            e.preventDefault();
+            joystickActive = false;
+            joystickInput = { x: 0, y: 0 };
+            joystickStick.style.transform = 'translate(-50%, -50%)';
+        });
+        
+        function updateJoystick(touchX, touchY, stick, base) {
+            const rect = base.getBoundingClientRect();
+            const maxDist = rect.width / 2 - 25;
+            
+            let dx = touchX - joystickCenter.x;
+            let dy = touchY - joystickCenter.y;
+            
+            const dist = Math.hypot(dx, dy);
+            if (dist > maxDist) {
+                dx = (dx / dist) * maxDist;
+                dy = (dy / dist) * maxDist;
+            }
+            
+            stick.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+            
+            // Normalizar a valores -1 a 1
+            joystickInput.x = dx / maxDist;
+            joystickInput.y = dy / maxDist;
+        }
+        
+        // Botón de correr
+        btnRun.addEventListener('touchstart', e => {
+            e.preventDefault();
+            isRunning = true;
+            btnRun.classList.add('active');
+        });
+        btnRun.addEventListener('touchend', e => {
+            e.preventDefault();
+            isRunning = false;
+            btnRun.classList.remove('active');
         });
     }
     
@@ -612,6 +671,8 @@
         hideOverlay('victory');
         document.getElementById('menu').classList.remove('hidden');
         document.getElementById('game').classList.remove('active');
+        document.getElementById('joystickArea').classList.remove('active');
+        document.getElementById('touchActions').classList.remove('active');
     }
     
     // ========== INICIO DEL JUEGO ==========
@@ -619,7 +680,6 @@
         state = 'playing';
         chapter = 1;
         
-        // Reiniciar jugador
         player = {
             x: W / 2,
             y: H / 2,
@@ -628,23 +688,24 @@
             battery: CONFIG.PLAYER_MAX_BATTERY
         };
         
-        // Generar enemigos
         spawnEnemies();
-        
-        // Crear salida
         exit = { x: W - 100, y: H - 100, radius: 50 };
         
-        // Reset
         invincible = false;
         invincibleTimer = 0;
+        isRunning = false;
+        joystickInput = { x: 0, y: 0 };
         
-        // Ocultar menús
         document.getElementById('menu').classList.add('hidden');
         document.getElementById('game').classList.add('active');
+        
+        if (isMobile) {
+            document.getElementById('joystickArea').classList.add('active');
+            document.getElementById('touchActions').classList.add('active');
+        }
+        
         hideOverlay('gameOver');
         hideOverlay('victory');
-        
-        // Mostrar título del capítulo
         showChapterTitle();
     }
     
@@ -670,11 +731,9 @@
                 x: x,
                 y: y,
                 emoji: CONFIG.ENEMY_TYPES[i % CONFIG.ENEMY_TYPES.length],
-                speed: CONFIG.ENEMY_BASE_SPEED + (chapter * 0.2),
+                speed: CONFIG.ENEMY_BASE_SPEED + (chapter * 0.15),
                 angle: Math.random() * Math.PI * 2,
-                state: 'patrol',
-                targetX: 0,
-                targetY: 0
+                state: 'patrol'
             });
         }
     }
@@ -683,23 +742,25 @@
         chapter++;
         
         if (chapter > 4) {
-            // Victoria
             state = 'victory';
             showOverlay('victory');
+            playSound('pickup');
         } else {
-            // Siguiente capítulo
             player.x = W / 2;
             player.y = H / 2;
             player.health = Math.min(CONFIG.PLAYER_MAX_HEALTH, player.health + 30);
             player.battery = CONFIG.PLAYER_MAX_BATTERY;
             spawnEnemies();
             showChapterTitle();
+            playSound('pickup');
         }
     }
     
     // ========== ACTUALIZACIÓN DEL JUEGO ==========
     function update() {
         if (state !== 'playing') return;
+        
+        frameCount++;
         
         // Actualizar invencibilidad
         if (invincible) {
@@ -710,10 +771,17 @@
         // ===== MOVIMIENTO DEL JUGADOR =====
         let dx = 0, dy = 0;
         
-        if (keys['ArrowUp'] || keys['KeyW']) dy = -1;
-        if (keys['ArrowDown'] || keys['KeyS']) dy = 1;
-        if (keys['ArrowLeft'] || keys['KeyA']) dx = -1;
-        if (keys['ArrowRight'] || keys['KeyD']) dx = 1;
+        // Input de teclado
+        if (keys['ArrowUp'] || keys['KeyW']) dy -= 1;
+        if (keys['ArrowDown'] || keys['KeyS']) dy += 1;
+        if (keys['ArrowLeft'] || keys['KeyA']) dx -= 1;
+        if (keys['ArrowRight'] || keys['KeyD']) dx += 1;
+        
+        // Input de joystick móvil
+        if (isMobile && (Math.abs(joystickInput.x) > 0.1 || Math.abs(joystickInput.y) > 0.1)) {
+            dx = joystickInput.x;
+            dy = joystickInput.y;
+        }
         
         // Normalizar movimiento diagonal
         const mag = Math.hypot(dx, dy);
@@ -724,9 +792,9 @@
         
         // Velocidad y correr
         let speed = CONFIG.PLAYER_SPEED;
-        const isRunning = keys['Space'] || keys['ShiftLeft'] || keys['ShiftRight'];
+        const running = isRunning || keys['Space'] || keys['ShiftLeft'] || keys['ShiftRight'];
         
-        if (isRunning && player.stamina > 0 && mag > 0) {
+        if (running && player.stamina > 0 && mag > 0) {
             speed = CONFIG.PLAYER_RUN_SPEED;
             player.stamina = Math.max(0, player.stamina - CONFIG.STAMINA_DRAIN);
         } else {
@@ -737,7 +805,7 @@
         player.x += dx * speed;
         player.y += dy * speed;
         
-        // Límites del canvas
+        // Límites
         player.x = Math.max(CONFIG.PLAYER_SIZE, Math.min(W - CONFIG.PLAYER_SIZE, player.x));
         player.y = Math.max(CONFIG.PLAYER_SIZE, Math.min(H - CONFIG.PLAYER_SIZE, player.y));
         
@@ -748,45 +816,40 @@
         enemies.forEach(enemy => {
             const distToPlayer = Math.hypot(player.x - enemy.x, player.y - enemy.y);
             
-            if (distToPlayer < CONFIG.ENEMY_RANGE) {
-                // Perseguir al jugador
+            if (distToPlayer < CONFIG.ENEMY_RANGE && player.battery > 10) {
                 enemy.state = 'chase';
                 const angle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
-                enemy.x += Math.cos(angle) * enemy.speed;
-                enemy.y += Math.sin(angle) * enemy.speed;
+                enemy.x += Math.cos(angle) * enemy.speed * CONFIG.ENEMY_CHASE_SPEED;
+                enemy.y += Math.sin(angle) * enemy.speed * CONFIG.ENEMY_CHASE_SPEED;
             } else {
-                // Patrullar
                 enemy.state = 'patrol';
                 enemy.angle += (Math.random() - 0.5) * 0.1;
                 enemy.x += Math.cos(enemy.angle) * enemy.speed * 0.3;
                 enemy.y += Math.sin(enemy.angle) * enemy.speed * 0.3;
                 
-                // Rebotar en bordes
                 if (enemy.x < 50 || enemy.x > W - 50) enemy.angle = Math.PI - enemy.angle;
                 if (enemy.y < 50 || enemy.y > H - 50) enemy.angle = -enemy.angle;
             }
             
-            // Mantener dentro del canvas
             enemy.x = Math.max(30, Math.min(W - 30, enemy.x));
             enemy.y = Math.max(30, Math.min(H - 30, enemy.y));
             
-            // Colisión con jugador
+            // Colisión
             if (distToPlayer < 35 && !invincible) {
                 player.health -= CONFIG.ENEMY_DAMAGE;
                 invincible = true;
                 invincibleTimer = CONFIG.INVINCIBLE_TIME;
                 
-                // Empujar enemigo
                 const pushAngle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
                 enemy.x -= Math.cos(pushAngle) * 60;
                 enemy.y -= Math.sin(pushAngle) * 60;
                 
-                // Efecto de daño
+                playSound('damage');
                 showDamageEffect();
             }
         });
         
-        // ===== VERIFICAR SALIDA =====
+        // ===== SALIDA =====
         const distToExit = Math.hypot(player.x - exit.x, player.y - exit.y);
         if (distToExit < exit.radius + CONFIG.PLAYER_SIZE) {
             nextChapter();
@@ -800,22 +863,22 @@
                 '🧸 Boogo te encontró...',
                 '🦁 Catstar te atacó...',
                 '🤖 1028 te traicionó...',
-                '🐀 Ratuile te mordió...',
-                '🟢 Slimer te absorbió...'
+                '🐀 Ratuile te mordió...'
             ];
             document.getElementById('deathMsg').textContent = messages[Math.floor(Math.random() * messages.length)];
             showOverlay('gameOver');
         }
         
-        // ===== ACTUALIZAR HUD =====
+        // ===== HUD =====
         updateHUD();
     }
     
     function showDamageEffect() {
         const flash = document.createElement('div');
         flash.className = 'damage-flash';
+        flash.style.cssText = 'position:fixed;inset:0;background:rgba(255,0,0,0.3);z-index:99;pointer-events:none;animation:damageFade 0.3s forwards;';
         document.body.appendChild(flash);
-        setTimeout(() => flash.remove(), 500);
+        setTimeout(() => flash.remove(), 300);
     }
     
     function updateHUD() {
@@ -827,28 +890,21 @@
         staminaBar.style.width = `${player.stamina}%`;
         batteryBar.style.width = `${player.battery}%`;
         
-        // Color de vida
-        if (player.health > 60) {
-            healthBar.style.background = 'linear-gradient(90deg, #0f0, #0f0)';
-        } else if (player.health > 30) {
-            healthBar.style.background = 'linear-gradient(90deg, #fa0, #ff0)';
-        } else {
-            healthBar.style.background = 'linear-gradient(90deg, #f44, #f00)';
-        }
+        if (player.health > 60) healthBar.style.background = '#0f0';
+        else if (player.health > 30) healthBar.style.background = '#ff0';
+        else healthBar.style.background = '#f44';
         
         document.getElementById('chapterDisplay').textContent = `Capítulo ${chapter}`;
     }
     
     // ========== RENDERIZADO ==========
     function draw() {
-        // Limpiar canvas
         ctx.fillStyle = '#0a0a0a';
         ctx.fillRect(0, 0, W, H);
         
         if (state !== 'playing' && state !== 'paused') return;
         
-        // ===== DIBUJAR SUELO =====
-        ctx.fillStyle = '#1a1a1a';
+        // Suelo
         for (let x = 0; x < W; x += CONFIG.TILE_SIZE) {
             for (let y = 0; y < H; y += CONFIG.TILE_SIZE) {
                 ctx.fillStyle = (Math.floor(x / CONFIG.TILE_SIZE) + Math.floor(y / CONFIG.TILE_SIZE)) % 2 === 0 ? '#1a1a1a' : '#151515';
@@ -856,7 +912,7 @@
             }
         }
         
-        // ===== DIBUJAR SALIDA =====
+        // Salida
         ctx.beginPath();
         ctx.arc(exit.x, exit.y, exit.radius, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(0, 255, 0, 0.2)';
@@ -865,62 +921,28 @@
         ctx.lineWidth = 3;
         ctx.stroke();
         
-        // Icono de salida
         ctx.font = '30px Arial';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillStyle = '#0f0';
         ctx.fillText('🚪', exit.x, exit.y);
         
-        // Línea guía hacia la salida
-        if (player.battery < 30) {
-            const angle = Math.atan2(exit.y - player.y, exit.x - player.x);
-            const arrowX = player.x + Math.cos(angle) * 60;
-            const arrowY = player.y + Math.sin(angle) * 60;
-            
-            ctx.save();
-            ctx.translate(arrowX, arrowY);
-            ctx.rotate(angle);
-            ctx.beginPath();
-            ctx.moveTo(10, 0);
-            ctx.lineTo(-5, -6);
-            ctx.lineTo(-5, 6);
-            ctx.closePath();
-            ctx.fillStyle = 'rgba(0, 255, 0, 0.7)';
-            ctx.fill();
-            ctx.restore();
-        }
-        
-        // ===== DIBUJAR ENEMIGOS =====
+        // Enemigos
         ctx.font = '36px Arial';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        
         enemies.forEach(enemy => {
             const dist = Math.hypot(player.x - enemy.x, player.y - enemy.y);
             const visibleRadius = Math.max(CONFIG.VIEW_RADIUS, CONFIG.FLASHLIGHT_RADIUS * (player.battery / 100));
             
             if (dist < visibleRadius) {
                 ctx.fillText(enemy.emoji, enemy.x, enemy.y);
-                
-                // Indicador de estado
-                if (enemy.state === 'chase') {
-                    ctx.font = '12px Arial';
-                    ctx.fillStyle = '#f55';
-                    ctx.fillText('!', enemy.x, enemy.y - 25);
-                    ctx.font = '36px Arial';
-                }
             }
         });
         
-        // ===== DIBUJAR JUGADOR =====
+        // Jugador
         const shouldBlink = invincible && Math.floor(frameCount / 5) % 2 === 0;
         if (!shouldBlink) {
             ctx.font = '32px Arial';
-            ctx.fillStyle = '#fff';
             ctx.fillText('👤', player.x, player.y);
             
-            // Indicador de invencibilidad
             if (invincible) {
                 ctx.beginPath();
                 ctx.arc(player.x, player.y, 25, 0, Math.PI * 2);
@@ -930,11 +952,11 @@
             }
         }
         
-        // ===== EFECTO DE OSCURIDAD =====
+        // Oscuridad
         ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
         ctx.fillRect(0, 0, W, H);
         
-        // Agujero de luz (linterna)
+        // Luz
         ctx.save();
         ctx.globalCompositeOperation = 'destination-out';
         
@@ -950,31 +972,25 @@
         ctx.fill();
         ctx.restore();
         
-        // Visibilidad adicional para la salida
-        const exitDist = Math.hypot(player.x - exit.x, player.y - exit.y);
-        if (exitDist < 300) {
+        // Luz de salida
+        if (Math.hypot(player.x - exit.x, player.y - exit.y) < 300) {
             ctx.save();
             ctx.globalCompositeOperation = 'destination-out';
-            const exitGradient = ctx.createRadialGradient(exit.x, exit.y, 0, exit.x, exit.y, 80);
-            exitGradient.addColorStop(0, 'rgba(0, 0, 0, 0.5)');
-            exitGradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            const exitGrad = ctx.createRadialGradient(exit.x, exit.y, 0, exit.x, exit.y, 80);
+            exitGrad.addColorStop(0, 'rgba(0, 0, 0, 0.5)');
+            exitGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
             ctx.beginPath();
             ctx.arc(exit.x, exit.y, 80, 0, Math.PI * 2);
-            ctx.fillStyle = exitGradient;
+            ctx.fillStyle = exitGrad;
             ctx.fill();
             ctx.restore();
         }
     }
     
     // ========== GAME LOOP ==========
-    function gameLoop(timestamp) {
-        deltaTime = timestamp - lastTime;
-        lastTime = timestamp;
-        frameCount++;
-        
+    function gameLoop() {
         update();
         draw();
-        
         requestAnimationFrame(gameLoop);
     }
     

@@ -257,13 +257,36 @@
     </style>
 </head>
 <body>
+    <script>
+    // FUNCIONES GLOBALES - DEFINIDAS PRIMERO
+    window.startGame = function() {
+        console.log('startGame called');
+        if (typeof _startGame === 'function') _startGame();
+        else alert('Cargando juego... Por favor espera.');
+    };
+    window.showOverlay = function(id) { 
+        console.log('showOverlay:', id);
+        if (typeof _showOverlay === 'function') _showOverlay(id);
+        else { var el = document.getElementById(id); if (el) el.classList.add('active'); }
+    };
+    window.hideOverlay = function(id) { 
+        console.log('hideOverlay:', id);
+        if (typeof _hideOverlay === 'function') _hideOverlay(id);
+        else { var el = document.getElementById(id); if (el) el.classList.remove('active'); }
+    };
+    window.resumeGame = function() { if (typeof _resumeGame === 'function') _resumeGame(); };
+    window.quitGame = function() { if (typeof _quitGame === 'function') _quitGame(); };
+    window.closeVHS = function() { if (typeof _closeVHS === 'function') _closeVHS(); };
+    window.closePuzzle = function() { if (typeof _closePuzzle === 'function') _closePuzzle(); };
+    </script>
+    
     <!-- MENÚ -->
     <div id="menu">
         <h1 class="title">THE FORGOTTEN<br>PLAYROOM</h1>
         <p class="subtitle">Una fábrica abandonada... juguetes olvidados... terror</p>
-        <a class="btn" href="javascript:startGame()">▶ JUGAR</a>
-        <a class="btn" href="javascript:showOverlay('charsScreen')">PERSONAJES</a>
-        <a class="btn" href="javascript:showOverlay('controlsScreen')">CONTROLES</a>
+        <a class="btn" href="javascript:void(0)" onclick="window.startGame(); return false;">▶ JUGAR</a>
+        <a class="btn" href="javascript:void(0)" onclick="window.showOverlay('charsScreen'); return false;">PERSONAJES</a>
+        <a class="btn" href="javascript:void(0)" onclick="window.showOverlay('controlsScreen'); return false;">CONTROLES</a>
         <p style="color:#ff2244; margin-top:30px; font-size:0.8rem;">⚠️ Terror psicológico - Mayores de 12</p>
     </div>
     
@@ -358,7 +381,7 @@
         <div class="vhs-content">
             <div class="vhs-title" id="vhsTitle">📼 CINTA VHS</div>
             <div class="vhs-text" id="vhsText"></div>
-            <a class="btn" style="margin-top:20px; display:inline-block;" href="javascript:closeVHS()">CONTINUAR</a>
+            <a class="btn" style="margin-top:20px; display:inline-block;" href="javascript:void(0)" onclick="window.closeVHS(); return false;">CONTINUAR</a>
         </div>
     </div>
     
@@ -367,13 +390,13 @@
         <h2 style="color:#ff2244; margin-bottom:20px;">🔌 PUZZLE ELÉCTRICO</h2>
         <canvas id="puzzleCanvas" width="400" height="300"></canvas>
         <p style="color:#888; margin-top:15px;">Conecta los cables del mismo color</p>
-        <a class="btn" style="margin-top:10px; display:inline-block;" href="javascript:closePuzzle()">CERRAR</a>
+        <a class="btn" style="margin-top:10px; display:inline-block;" href="javascript:void(0)" onclick="window.closePuzzle(); return false;">CERRAR</a>
     </div>
     
     <!-- OTROS -->
-    <div id="pause" class="overlay"><h1>PAUSA</h1><p>El juego está pausado</p><a class="btn" href="javascript:resumeGame()">▶ CONTINUAR</a><a class="btn" href="javascript:quitGame()">🏠 MENÚ</a></div>
-    <div id="gameOver" class="overlay"><h1>GAME OVER</h1><p id="deathMsg">Te atraparon...</p><a class="btn" href="javascript:startGame()">🔄 REINTENTAR</a><a class="btn" href="javascript:quitGame()">🏠 MENÚ</a></div>
-    <div id="victory" class="overlay"><h1>¡ESCAPASTE!</h1><p>Sobreviviste a The Forgotten Playroom</p><a class="btn" href="javascript:startGame()">🔄 JUGAR DE NUEVO</a><a class="btn" href="javascript:quitGame()">🏠 MENÚ</a></div>
+    <div id="pause" class="overlay"><h1>PAUSA</h1><p>El juego está pausado</p><a class="btn" href="javascript:void(0)" onclick="window.resumeGame(); return false;">▶ CONTINUAR</a><a class="btn" href="javascript:void(0)" onclick="window.quitGame(); return false;">🏠 MENÚ</a></div>
+    <div id="gameOver" class="overlay"><h1>GAME OVER</h1><p id="deathMsg">Te atraparon...</p><a class="btn" href="javascript:void(0)" onclick="window.startGame(); return false;">🔄 REINTENTAR</a><a class="btn" href="javascript:void(0)" onclick="window.quitGame(); return false;">🏠 MENÚ</a></div>
+    <div id="victory" class="overlay"><h1>¡ESCAPASTE!</h1><p>Sobreviviste a The Forgotten Playroom</p><a class="btn" href="javascript:void(0)" onclick="window.startGame(); return false;">🔄 JUGAR DE NUEVO</a><a class="btn" href="javascript:void(0)" onclick="window.quitGame(); return false;">🏠 MENÚ</a></div>
 
     <script>
     // ============================================
@@ -1043,16 +1066,23 @@
         });
     }
     
-    function showOverlay(id) { document.getElementById(id).classList.add('active'); }
-    function hideOverlay(id) { document.getElementById(id).classList.remove('active'); }
-    function pauseGame() { if (state === 'playing') { state = 'paused'; showOverlay('pause'); } }
-    function resumeGame() { state = 'playing'; hideOverlay('pause'); }
-    function quitGame() {
+    // Global functions - exported immediately
+    function _showOverlay(id) { document.getElementById(id).classList.add('active'); }
+    function _hideOverlay(id) { document.getElementById(id).classList.remove('active'); }
+    function _pauseGame() { if (state === 'playing') { state = 'paused'; _showOverlay('pause'); } }
+    function _resumeGame() { state = 'playing'; _hideOverlay('pause'); }
+    function _quitGame() {
         state = 'menu';
         document.getElementById('menu').classList.remove('hidden');
         document.getElementById('game').classList.remove('active');
-        hideOverlay('pause'); hideOverlay('gameOver'); hideOverlay('victory');
+        _hideOverlay('pause'); _hideOverlay('gameOver'); _hideOverlay('victory');
     }
+    
+    window.showOverlay = _showOverlay;
+    window.hideOverlay = _hideOverlay;
+    window.pauseGame = _pauseGame;
+    window.resumeGame = _resumeGame;
+    window.quitGame = _quitGame;
     
     function showVHS(text) {
         document.getElementById('vhsTitle').textContent = '📼 CINTA VHS';
@@ -1061,18 +1091,16 @@
         playSound('pickup');
     }
     
-    function closeVHS() {
-        document.getElementById('vhsOverlay').classList.remove('active');
-    }
+    function _closeVHS() { document.getElementById('vhsOverlay').classList.remove('active'); }
+    window.closeVHS = _closeVHS;
     
     function openPuzzle() {
         document.getElementById('puzzleOverlay').classList.add('active');
         drawPuzzle();
     }
     
-    function closePuzzle() {
-        document.getElementById('puzzleOverlay').classList.remove('active');
-    }
+    function _closePuzzle() { document.getElementById('puzzleOverlay').classList.remove('active'); }
+    window.closePuzzle = _closePuzzle;
     
     function drawPuzzle() {
         const pCanvas = document.getElementById('puzzleCanvas');
@@ -1106,7 +1134,7 @@
         pCtx.fillText('La puerta está abierta', 140, 230);
     }
     
-    function startGame() {
+    function _startGame() {
         state = 'playing';
         chapter = 1;
         player = { x: W/2, y: H/2, hp: 100, stamina: 100, light: 100 };
@@ -1115,7 +1143,7 @@
         
         document.getElementById('menu').classList.add('hidden');
         document.getElementById('game').classList.add('active');
-        hideOverlay('gameOver'); hideOverlay('victory');
+        _hideOverlay('gameOver'); _hideOverlay('victory');
         
         if (IS_MOBILE) {
             document.getElementById('joystickArea').classList.add('active');
@@ -1124,6 +1152,7 @@
         
         showChapter();
     }
+    window.startGame = _startGame;
     
     function spawnLevel() {
         enemies = [];
@@ -1398,20 +1427,6 @@
         draw();
         requestAnimationFrame(gameLoop);
     }
-    
-    // EXPORTAR TODAS LAS FUNCIONES AL SCOPE GLOBAL
-    window.startGame = startGame;
-    window.pauseGame = pauseGame;
-    window.resumeGame = resumeGame;
-    window.quitGame = quitGame;
-    window.useGrabPack = useGrabPack;
-    window.showOverlay = showOverlay;
-    window.hideOverlay = hideOverlay;
-    window.closeVHS = closeVHS;
-    window.closePuzzle = closePuzzle;
-    
-    // EXPORTAR VARIABLES NECESARIAS
-    window.gameState = { running, state };
     
     window.addEventListener('load', init);
     </script>

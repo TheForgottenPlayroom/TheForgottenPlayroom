@@ -6,6 +6,7 @@
     <title>The Forgotten Playroom</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/menu.css">
+    <link rel="stylesheet" href="css/mobile.css">
 </head>
 <body>
     <!-- Main Menu -->
@@ -344,6 +345,29 @@
         </div>
     </div>
     
+    <!-- Touch Controls for Mobile -->
+    <div id="touch-controls">
+        <!-- Left side - D-Pad -->
+        <div class="dpad-container">
+            <button class="dpad-btn dpad-up" data-key="ArrowUp">▲</button>
+            <button class="dpad-btn dpad-down" data-key="ArrowDown">▼</button>
+            <button class="dpad-btn dpad-left" data-key="ArrowLeft">◄</button>
+            <button class="dpad-btn dpad-right" data-key="ArrowRight">►</button>
+        </div>
+        
+        <!-- Right side - Action Buttons -->
+        <div class="action-buttons">
+            <div class="action-row">
+                <button class="touch-btn flashlight" data-key="KeyF" title="Linterna">🔦</button>
+                <button class="touch-btn interact" data-key="KeyE" title="Interactuar">✋</button>
+            </div>
+            <div class="action-row">
+                <button class="touch-btn run" data-key="Space" title="Correr">🏃</button>
+                <button class="touch-btn pause" data-key="Escape" title="Pausa">⏸️</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="js/constants.js"></script>
     <script src="js/utils.js"></script>

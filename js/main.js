@@ -215,6 +215,9 @@ document.addEventListener('DOMContentLoaded', () => {
         lastTap = currentTime;
     });
     
+    // Initialize touch controls
+    initTouchControls();
+    
     console.log('✅ Game initialized successfully');
 });
 
@@ -231,19 +234,84 @@ function hideAllMenus() {
     document.getElementById('chapter-screen')?.classList.add('hidden');
 }
 
+// Mobile Touch Controls Handler
+function initTouchControls() {
+    console.log('📱 Initializing touch controls...');
+    
+    // D-Pad buttons
+    document.querySelectorAll('.dpad-btn').forEach(btn => {
+        const key = btn.dataset.key;
+        
+        btn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (window.game && window.game.input) {
+                window.game.input.keys[key] = true;
+            }
+        });
+        
+        btn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            if (window.game && window.game.input) {
+                window.game.input.keys[key] = false;
+            }
+        });
+        
+        btn.addEventListener('touchcancel', (e) => {
+            if (window.game && window.game.input) {
+                window.game.input.keys[key] = false;
+            }
+        });
+    });
+    
+    // Action buttons (F, E, Space, Escape)
+    document.querySelectorAll('.touch-btn').forEach(btn => {
+        const key = btn.dataset.key;
+        
+        btn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (window.game && window.game.input) {
+                window.game.input.keys[key] = true;
+                window.game.input.previousKeys[key] = false;
+            }
+        });
+        
+        btn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            if (window.game && window.game.input) {
+                window.game.input.keys[key] = false;
+            }
+        });
+        
+        btn.addEventListener('touchcancel', (e) => {
+            if (window.game && window.game.input) {
+                window.game.input.keys[key] = false;
+            }
+        });
+    });
+    
+    console.log('✅ Touch controls initialized');
+}
+
 // Utility functions for mobile buttons
 function simulateKeyPress(key) {
-    window.game?.input?.simulateKey(key);
+    if (window.game && window.game.input) {
+        window.game.input.keys[key] = true;
+        setTimeout(() => {
+            window.game.input.keys[key] = false;
+        }, 100);
+    }
 }
 
 function togglePause() {
-    window.game?.pause();
+    if (window.game) {
+        window.game.pause();
+    }
 }
 
 function interact() {
-    window.game?.input?.simulateKey(KEYS.E);
+    simulateKeyPress(KEYS.E);
 }
 
 function toggleFlashlight() {
-    window.game?.input?.simulateKey(KEYS.F);
+    simulateKeyPress(KEYS.F);
 }

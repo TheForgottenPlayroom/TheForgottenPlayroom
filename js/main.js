@@ -18,37 +18,125 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // Button handlers
-    document.getElementById('btn-start')?.addEventListener('click', () => {
-        window.game?.handleStartGame();
+    // ===========================================
+    // MAIN MENU BUTTONS
+    // ===========================================
+    
+    // JUGAR button
+    document.getElementById('btn-play')?.addEventListener('click', () => {
+        console.log('Play button clicked');
+        hideAllMenus();
+        window.game?.startNewGame();
     });
     
-    document.getElementById('btn-continue')?.addEventListener('click', () => {
-        window.game?.handleContinue();
+    // CAPÍTULOS button
+    document.getElementById('btn-chapters')?.addEventListener('click', () => {
+        console.log('Chapters button clicked');
+        document.getElementById('main-menu').classList.add('hidden');
+        document.getElementById('chapters-menu').classList.remove('hidden');
     });
     
-    document.getElementById('btn-settings')?.addEventListener('click', () => {
-        window.game?.handleSettings();
+    // PERSONAJES button
+    document.getElementById('btn-characters')?.addEventListener('click', () => {
+        console.log('Characters button clicked');
+        document.getElementById('main-menu').classList.add('hidden');
+        document.getElementById('characters-menu').classList.remove('hidden');
     });
     
-    document.getElementById('btn-quit')?.addEventListener('click', () => {
-        window.game?.handleQuit();
+    // CONTROLES button
+    document.getElementById('btn-controls')?.addEventListener('click', () => {
+        console.log('Controls button clicked');
+        document.getElementById('main-menu').classList.add('hidden');
+        document.getElementById('controls-menu').classList.remove('hidden');
+    });
+    
+    // CRÉDITOS button
+    document.getElementById('btn-credits')?.addEventListener('click', () => {
+        console.log('Credits button clicked');
+        document.getElementById('main-menu').classList.add('hidden');
+        document.getElementById('credits-menu').classList.remove('hidden');
+    });
+    
+    // ===========================================
+    // CHAPTER SELECTION
+    // ===========================================
+    
+    document.querySelectorAll('.chapter-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const chapter = card.dataset.chapter;
+            console.log('Chapter ' + chapter + ' selected');
+            hideAllMenus();
+            window.game?.loadChapter(parseInt(chapter));
+            window.game?.state = GAME_STATES.PLAYING;
+        });
+    });
+    
+    document.getElementById('btn-back-chapters')?.addEventListener('click', () => {
+        document.getElementById('chapters-menu').classList.add('hidden');
+        document.getElementById('main-menu').classList.remove('hidden');
+    });
+    
+    // ===========================================
+    // BACK BUTTONS FOR ALL MENUS
+    // ===========================================
+    
+    document.getElementById('btn-back-characters')?.addEventListener('click', () => {
+        document.getElementById('characters-menu').classList.add('hidden');
+        document.getElementById('main-menu').classList.remove('hidden');
+    });
+    
+    document.getElementById('btn-back-controls')?.addEventListener('click', () => {
+        document.getElementById('controls-menu').classList.add('hidden');
+        document.getElementById('main-menu').classList.remove('hidden');
+    });
+    
+    document.getElementById('btn-back-credits')?.addEventListener('click', () => {
+        document.getElementById('credits-menu').classList.add('hidden');
+        document.getElementById('main-menu').classList.remove('hidden');
+    });
+    
+    // ===========================================
+    // PAUSE MENU
+    // ===========================================
+    
+    document.getElementById('btn-resume')?.addEventListener('click', () => {
+        window.game?.pause();
     });
     
     document.getElementById('btn-restart')?.addEventListener('click', () => {
-        window.game?.handleRestart();
+        hideAllMenus();
+        window.game?.startNewGame();
     });
     
     document.getElementById('btn-main-menu')?.addEventListener('click', () => {
-        window.game?.handleMainMenu();
+        hideAllMenus();
+        document.getElementById('main-menu').classList.remove('hidden');
+        window.game?.state = GAME_STATES.MENU;
     });
     
-    // Settings handlers
+    // ===========================================
+    // GAME OVER / VICTORY SCREENS
+    // ===========================================
+    
+    document.getElementById('btn-retry')?.addEventListener('click', () => {
+        hideAllMenus();
+        window.game?.startNewGame();
+    });
+    
+    document.getElementById('btn-home')?.addEventListener('click', () => {
+        hideAllMenus();
+        document.getElementById('main-menu').classList.remove('hidden');
+        window.game?.state = GAME_STATES.MENU;
+    });
+    
+    // ===========================================
+    // SETTINGS (if exists)
+    // ===========================================
+    
     document.getElementById('settings-back')?.addEventListener('click', () => {
-        document.getElementById('settings-screen').classList.add('hidden');
+        document.getElementById('settings-screen')?.classList.add('hidden');
     });
     
-    // Volume sliders
     const sfxVolume = document.getElementById('sfx-volume');
     const musicVolume = document.getElementById('music-volume');
     
@@ -64,16 +152,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // Mute toggle
     document.getElementById('mute-toggle')?.addEventListener('click', () => {
         if (window.game?.audio) {
             window.game.audio.toggleMute();
-            document.getElementById('mute-toggle').textContent = 
-                window.game.audio.muted ? '🔇' : '🔊';
+            const btn = document.getElementById('mute-toggle');
+            if (btn) btn.textContent = window.game.audio.muted ? '🔇' : '🔊';
         }
     });
     
-    // Touch controls for mobile
+    // ===========================================
+    // TOUCH CONTROLS FOR MOBILE
+    // ===========================================
+    
     let touchStartX = 0;
     let touchStartY = 0;
     
@@ -83,28 +173,28 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     document.addEventListener('touchend', (e) => {
+        // Only handle if game is playing
+        if (!window.game || window.game.state !== GAME_STATES.PLAYING) return;
+        
         const touchEndX = e.changedTouches[0].clientX;
         const touchEndY = e.changedTouches[0].clientY;
         
         const deltaX = touchEndX - touchStartX;
         const deltaY = touchEndY - touchStartY;
         
-        // Minimum swipe distance
         const minSwipe = 30;
         
         if (Math.abs(deltaX) > Math.abs(deltaY)) {
-            // Horizontal swipe
             if (deltaX > minSwipe) {
-                window.game?.input?.simulateKey(KEYS.RIGHT);
+                window.game.input?.simulateKey(KEYS.RIGHT);
             } else if (deltaX < -minSwipe) {
-                window.game?.input?.simulateKey(KEYS.LEFT);
+                window.game.input?.simulateKey(KEYS.LEFT);
             }
         } else {
-            // Vertical swipe
             if (deltaY > minSwipe) {
-                window.game?.input?.simulateKey(KEYS.DOWN);
+                window.game.input?.simulateKey(KEYS.DOWN);
             } else if (deltaY < -minSwipe) {
-                window.game?.input?.simulateKey(KEYS.UP);
+                window.game.input?.simulateKey(KEYS.UP);
             }
         }
     });
@@ -112,11 +202,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Double tap for flashlight
     let lastTap = 0;
     document.addEventListener('touchend', (e) => {
-        const currentTime = new Date().getTime();
+        if (!window.game || window.game.state !== GAME_STATES.PLAYING) return;
+        
+        const currentTime = Date.now();
         const tapLength = currentTime - lastTap;
         
         if (tapLength < 300 && tapLength > 0) {
-            window.game?.input?.simulateKey(KEYS.F);
+            window.game.input?.simulateKey(KEYS.F);
             e.preventDefault();
         }
         
@@ -125,6 +217,19 @@ document.addEventListener('DOMContentLoaded', () => {
     
     console.log('✅ Game initialized successfully');
 });
+
+// Helper function to hide all menus
+function hideAllMenus() {
+    document.getElementById('main-menu')?.classList.add('hidden');
+    document.getElementById('chapters-menu')?.classList.add('hidden');
+    document.getElementById('characters-menu')?.classList.add('hidden');
+    document.getElementById('controls-menu')?.classList.add('hidden');
+    document.getElementById('credits-menu')?.classList.add('hidden');
+    document.getElementById('pause-menu')?.classList.add('hidden');
+    document.getElementById('game-over-screen')?.classList.add('hidden');
+    document.getElementById('victory-screen')?.classList.add('hidden');
+    document.getElementById('chapter-screen')?.classList.add('hidden');
+}
 
 // Utility functions for mobile buttons
 function simulateKeyPress(key) {

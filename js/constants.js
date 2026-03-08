@@ -145,6 +145,19 @@ const MESSAGES = {
     GAME_OVER_EMILY: "Emily decidió quedarte... para siempre."
 };
 
+// Game States (exported for easy access)
+const GAME_STATES = {
+    MENU: 'menu',
+    LOADING: 'loading',
+    PLAYING: 'playing',
+    PAUSED: 'paused',
+    GAME_OVER: 'game_over',
+    VICTORY: 'victory'
+};
+
+// Dialog duration in milliseconds
+const DIALOG_DURATION = 3000;
+
 // Death Messages by Monster
 const DEATH_MESSAGES = {
     [CHARACTER_TYPES.BOOGO]: {

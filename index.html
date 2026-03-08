@@ -379,12 +379,14 @@
         // ========== CONFIGURACIÓN ==========
         const TILE_SIZE = 40;
         const PLAYER_SIZE = 24;
-        const PLAYER_SPEED = 4;
-        const PLAYER_RUN_SPEED = 7;
-        const ENEMY_SPEED = 1.5;
-        const ENEMY_RANGE = 200;
-        const FLASHLIGHT_RADIUS = 180;
-        const SAFE_DISTANCE = 300; // Distancia mínima de spawn de enemigos
+        const PLAYER_SPEED = 5;          // MÁS RÁPIDO
+        const PLAYER_RUN_SPEED = 9;       // MÁS RÁPIDO
+        const ENEMY_SPEED = 0.8;          // MÁS LENTO
+        const ENEMY_RANGE = 150;          // MENOS RANGO
+        const FLASHLIGHT_RADIUS = 250;    // MÁS LUZ
+        const SAFE_DISTANCE = 400;        // MÁS LEJOS
+        const ENEMY_DAMAGE = 5;           // MENOS DAÑO
+        const INVINCIBLE_TIME = 120;      // 2 SEGUNDOS
         
         // ========== CANVAS SETUP ==========
         const canvas = document.getElementById('canvas');
@@ -587,8 +589,11 @@
             player.x = Math.max(PLAYER_SIZE, Math.min(W - PLAYER_SIZE, player.x));
             player.y = Math.max(PLAYER_SIZE, Math.min(H - PLAYER_SIZE, player.y));
             
-            // Batería de linterna
-            player.battery = Math.max(0, player.battery - 0.02);
+            // Batería de linterna (se recarga sola)
+            if (player.battery < 100 && !keys['Space']) {
+                player.battery = Math.min(100, player.battery + 0.5);
+            } else {
+                player.battery = Math.max(0, player.battery - 0.05);
             
             // ===== IA DE ENEMIGOS =====
             enemies.forEach(enemy => {
@@ -618,9 +623,9 @@
                 
                 // Colisión con jugador
                 if (dist < 35 && !invincible) {
-                    player.health -= 25;
+                    player.health -= ENEMY_DAMAGE;  // Menos daño
                     invincible = true;
-                    invincibleTimer = 60; // 1 segundo de invencibilidad
+                    invincibleTimer = INVINCIBLE_TIME; // 2 segundos de invencibilidad
                     
                     // Empujar enemigo
                     const pushAngle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
@@ -708,26 +713,25 @@
                 ctx.fillText('👤', player.x, player.y);
             }
             
-            // Efecto de linterna (oscuridad)
-            if (player.battery > 0) {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
-                ctx.fillRect(0, 0, W, H);
-                
-                // Crear agujero de luz
-                ctx.save();
-                ctx.globalCompositeOperation = 'destination-out';
-                const grad = ctx.createRadialGradient(
-                    player.x, player.y, 0,
-                    player.x, player.y, FLASHLIGHT_RADIUS * (player.battery / 100)
-                );
-                grad.addColorStop(0, 'rgba(0,0,0,1)');
-                grad.addColorStop(1, 'rgba(0,0,0,0)');
-                ctx.fillStyle = grad;
-                ctx.beginPath();
-                ctx.arc(player.x, player.y, FLASHLIGHT_RADIUS, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.restore();
-            }
+            // Efecto de linterna (oscuridad suave)
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            ctx.fillRect(0, 0, W, H);
+            
+            // Crear agujero de luz (siempre hay algo de luz)
+            ctx.save();
+            ctx.globalCompositeOperation = 'destination-out';
+            const radius = Math.max(80, FLASHLIGHT_RADIUS * (player.battery / 100));
+            const grad = ctx.createRadialGradient(
+                player.x, player.y, 0,
+                player.x, player.y, radius
+            );
+            grad.addColorStop(0, 'rgba(0,0,0,1)');
+            grad.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
             
             // Indicador de dirección hacia la salida
             const exitAngle = Math.atan2(exit.y - player.y, exit.x - player.x);

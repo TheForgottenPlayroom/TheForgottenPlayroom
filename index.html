@@ -5,98 +5,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>The Forgotten Playroom</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background: #0a0a0a;
             color: #fff;
-            font-family: 'Segoe UI', Arial, sans-serif;
+            font-family: Arial, sans-serif;
             min-height: 100vh;
             overflow: hidden;
+            touch-action: manipulation;
         }
         
-        /* Main Menu */
-        #main-menu {
+        /* Menu */
+        #menu {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            background: linear-gradient(135deg, #0a0a0a, #1a1a2e);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%);
             z-index: 100;
         }
+        #menu.hidden { display: none; }
         
-        #main-menu.hidden {
-            display: none;
-        }
-        
-        .game-title {
-            font-size: 3rem;
+        .title {
+            font-size: 2.5rem;
             color: #FFD700;
             text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
             margin-bottom: 10px;
             text-align: center;
             animation: flicker 3s infinite;
         }
-        
         @keyframes flicker {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.8; }
-            52% { opacity: 1; }
-            54% { opacity: 0.6; }
-            56% { opacity: 1; }
         }
         
-        .game-subtitle {
-            font-size: 1.2rem;
-            color: #888;
-            margin-bottom: 30px;
-            text-align: center;
-        }
+        .subtitle { color: #888; margin-bottom: 30px; text-align: center; }
         
-        .menu-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            align-items: center;
-        }
-        
-        .menu-btn {
-            padding: 15px 40px;
+        .btn {
+            padding: 15px 50px;
+            margin: 10px;
             font-size: 1.2rem;
             background: linear-gradient(135deg, #1a1a2e, #16213e);
             border: 2px solid #FFD700;
             color: #fff;
-            cursor: pointer;
             border-radius: 10px;
-            transition: all 0.3s;
-            min-width: 250px;
+            cursor: pointer;
+            min-width: 200px;
+        }
+        .btn:active {
+            background: #FFD700;
+            color: #000;
         }
         
-        .menu-btn:hover, .menu-btn:active {
-            background: linear-gradient(135deg, #16213e, #1a1a2e);
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
-        }
+        .warning { color: #ff6b6b; margin-top: 30px; font-size: 0.9rem; text-align: center; }
         
-        .warning-text {
-            margin-top: 30px;
-            color: #ff6b6b;
-            font-size: 0.9rem;
-            text-align: center;
-            padding: 0 20px;
-        }
-        
-        /* Game Container */
-        #game-container {
+        /* Game */
+        #game {
             position: fixed;
             top: 0;
             left: 0;
@@ -104,15 +73,11 @@
             height: 100%;
             display: none;
         }
+        #game.active { display: block; }
         
-        #game-container.active {
-            display: block;
-        }
-        
-        #game-canvas {
+        canvas {
             width: 100%;
             height: 100%;
-            display: block;
             background: #0a0a0a;
         }
         
@@ -121,55 +86,35 @@
             position: absolute;
             top: 10px;
             left: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
             z-index: 10;
         }
-        
-        .hud-item {
+        .bar {
             display: flex;
             align-items: center;
-            gap: 8px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 8px 12px;
+            margin: 5px 0;
+            background: rgba(0,0,0,0.7);
+            padding: 5px 10px;
             border-radius: 5px;
         }
+        .bar-label { font-size: 14px; width: 60px; }
+        .bar-outer { width: 80px; height: 10px; background: #333; border-radius: 3px; }
+        .bar-inner { height: 100%; border-radius: 3px; }
+        #healthBar { background: linear-gradient(to right, #f00, #0f0); }
+        #staminaBar { background: #0af; }
+        #batteryBar { background: #ff0; }
         
-        .hud-label {
-            font-size: 14px;
-            min-width: 70px;
-        }
-        
-        .bar-container {
-            width: 100px;
-            height: 12px;
-            background: #333;
-            border-radius: 3px;
-            overflow: hidden;
-        }
-        
-        .bar-fill {
-            height: 100%;
-            transition: width 0.3s;
-        }
-        
-        #health-fill { background: linear-gradient(to right, #ff0000, #00ff00); }
-        #stamina-fill { background: #00aaff; }
-        #battery-fill { background: linear-gradient(to right, #ffaa00, #ffff00); }
-        
-        #hud-chapter {
+        #chapter {
             position: absolute;
             top: 10px;
             right: 10px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 8px 12px;
+            background: rgba(0,0,0,0.7);
+            padding: 8px 15px;
             border-radius: 5px;
             font-size: 14px;
         }
         
         /* Touch Controls */
-        #touch-controls {
+        #controls {
             position: fixed;
             bottom: 20px;
             left: 0;
@@ -177,591 +122,432 @@
             display: flex;
             justify-content: space-between;
             padding: 0 20px;
-            z-index: 50;
             pointer-events: none;
+            z-index: 50;
         }
-        
-        .controls-left, .controls-right {
-            pointer-events: auto;
-        }
+        #controls > div { pointer-events: auto; }
         
         .dpad {
             display: grid;
-            grid-template-columns: repeat(3, 55px);
-            grid-template-rows: repeat(3, 55px);
+            grid-template-columns: repeat(3, 50px);
+            grid-template-rows: repeat(3, 50px);
             gap: 5px;
         }
-        
         .dpad-btn {
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.4);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .dpad-btn:active { background: rgba(255,215,0,0.5); }
+        .dpad-btn:nth-child(1) { grid-column: 2; }
+        .dpad-btn:nth-child(2) { grid-column: 1; grid-row: 2; }
+        .dpad-btn:nth-child(3) { grid-column: 3; grid-row: 2; }
+        .dpad-btn:nth-child(4) { grid-column: 2; grid-row: 3; }
+        
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .action-row { display: flex; gap: 10px; }
+        .action-btn {
             width: 55px;
             height: 55px;
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.4);
-            border-radius: 10px;
-            color: white;
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-        
-        .dpad-btn:active {
-            background: rgba(255, 215, 0, 0.5);
-            border-color: #FFD700;
-        }
-        
-        .dpad-up { grid-column: 2; grid-row: 1; }
-        .dpad-left { grid-column: 1; grid-row: 2; }
-        .dpad-center { grid-column: 2; grid-row: 2; background: transparent; border: none; }
-        .dpad-right { grid-column: 3; grid-row: 2; }
-        .dpad-down { grid-column: 2; grid-row: 3; }
-        
-        .action-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            align-items: flex-end;
-        }
-        
-        .action-row {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .action-btn {
-            width: 60px;
-            height: 60px;
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.4);
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.4);
             border-radius: 50%;
-            color: white;
-            font-size: 24px;
+            color: #fff;
+            font-size: 22px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            user-select: none;
-            -webkit-user-select: none;
         }
+        .action-btn:active { background: rgba(255,215,0,0.5); }
         
-        .action-btn:active {
-            background: rgba(255, 215, 0, 0.5);
-            border-color: #FFD700;
-            transform: scale(0.95);
-        }
-        
-        /* Chapter Screen */
-        #chapter-screen {
+        /* Overlays */
+        .overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 90;
-        }
-        
-        #chapter-screen.hidden {
-            display: none;
-        }
-        
-        #chapter-screen h1 {
-            font-size: 2.5rem;
-            color: #FFD700;
-            margin-bottom: 10px;
-        }
-        
-        #chapter-screen h2 {
-            font-size: 1.5rem;
-            color: #888;
-        }
-        
-        /* Pause Menu */
-        #pause-menu {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0,0,0,0.9);
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 80;
         }
+        .overlay.active { display: flex; }
+        .overlay h1 { font-size: 2.5rem; margin-bottom: 20px; }
+        .overlay p { color: #888; margin-bottom: 30px; }
         
-        #pause-menu.active {
-            display: flex;
-        }
+        #pause h1 { color: #FFD700; }
+        #gameOver h1 { color: #f00; }
+        #victory h1 { color: #0f0; }
         
-        #pause-menu h2 {
-            font-size: 2rem;
-            color: #FFD700;
-            margin-bottom: 30px;
-        }
-        
-        /* Game Over */
-        #game-over {
+        /* Chapter */
+        #chapterScreen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0,0,0,0.95);
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 90;
         }
+        #chapterScreen.active { display: flex; }
+        #chapterScreen h1 { color: #FFD700; font-size: 2rem; }
+        #chapterScreen h2 { color: #888; }
         
-        #game-over.active {
-            display: flex;
-        }
-        
-        #game-over h1 {
-            font-size: 3rem;
-            color: #ff0000;
-            margin-bottom: 20px;
-        }
-        
-        #game-over p {
-            font-size: 1.2rem;
-            color: #888;
-            margin-bottom: 30px;
-        }
-        
-        /* Victory */
-        #victory {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 90;
-        }
-        
-        #victory.active {
-            display: flex;
-        }
-        
-        #victory h1 {
-            font-size: 3rem;
-            color: #00ff00;
-            margin-bottom: 20px;
-        }
-        
-        /* Mobile warning */
-        @media (max-width: 600px) {
-            .game-title {
-                font-size: 2rem;
-            }
-            
-            .game-subtitle {
-                font-size: 1rem;
-            }
-            
-            .menu-btn {
-                padding: 12px 30px;
-                font-size: 1rem;
-                min-width: 200px;
-            }
+        @media (max-width: 400px) {
+            .title { font-size: 1.8rem; }
+            .btn { padding: 12px 40px; font-size: 1rem; min-width: 160px; }
         }
     </style>
 </head>
 <body>
-    <!-- Main Menu -->
-    <div id="main-menu">
-        <h1 class="game-title">THE FORGOTTEN PLAYROOM</h1>
-        <p class="game-subtitle">Un juego de terror en una fábrica de juguetes abandonada</p>
-        
-        <div class="menu-buttons">
-            <button class="menu-btn" id="btn-play">🎯 JUGAR</button>
-        </div>
-        
-        <p class="warning-text">⚠️ Este juego contiene terror y sustos. Recomendado para mayores de 12 años.</p>
+    <!-- Menu -->
+    <div id="menu">
+        <h1 class="title">THE FORGOTTEN PLAYROOM</h1>
+        <p class="subtitle">Juego de terror en una fábrica de juguetes</p>
+        <button class="btn" onclick="startGame()">🎯 JUGAR</button>
+        <button class="btn" onclick="showControls()">🎮 CONTROLES</button>
+        <button class="btn" onclick="showChars()">👹 PERSONAJES</button>
+        <p class="warning">⚠️ Terror y sustos. +12 años</p>
     </div>
     
-    <!-- Game Container -->
-    <div id="game-container">
-        <canvas id="game-canvas"></canvas>
-        
-        <!-- HUD -->
+    <!-- Game -->
+    <div id="game">
+        <canvas id="canvas"></canvas>
         <div id="hud">
-            <div class="hud-item">
-                <span class="hud-label">❤️ Vida</span>
-                <div class="bar-container">
-                    <div class="bar-fill" id="health-fill" style="width: 100%"></div>
-                </div>
-            </div>
-            <div class="hud-item">
-                <span class="hud-label">⚡ Stamina</span>
-                <div class="bar-container">
-                    <div class="bar-fill" id="stamina-fill" style="width: 100%"></div>
-                </div>
-            </div>
-            <div class="hud-item">
-                <span class="hud-label">🔦 Luz</span>
-                <div class="bar-container">
-                    <div class="bar-fill" id="battery-fill" style="width: 100%"></div>
-                </div>
-            </div>
+            <div class="bar"><span class="bar-label">❤️</span><div class="bar-outer"><div class="bar-inner" id="healthBar"></div></div></div>
+            <div class="bar"><span class="bar-label">⚡</span><div class="bar-outer"><div class="bar-inner" id="staminaBar"></div></div></div>
+            <div class="bar"><span class="bar-label">🔦</span><div class="bar-outer"><div class="bar-inner" id="batteryBar"></div></div></div>
         </div>
-        
-        <div id="hud-chapter">Capítulo 1</div>
-        
-        <!-- Touch Controls -->
-        <div id="touch-controls">
-            <div class="controls-left">
+        <div id="chapter">Capítulo 1</div>
+        <div id="controls">
+            <div>
                 <div class="dpad">
-                    <div></div>
-                    <button class="dpad-btn dpad-up" id="btn-up">▲</button>
-                    <div></div>
-                    <button class="dpad-btn dpad-left" id="btn-left">◄</button>
-                    <div class="dpad-center"></div>
-                    <button class="dpad-btn dpad-right" id="btn-right">►</button>
-                    <div></div>
-                    <button class="dpad-btn dpad-down" id="btn-down">▼</button>
-                    <div></div>
+                    <button class="dpad-btn" id="up">▲</button>
+                    <button class="dpad-btn" id="left">◄</button>
+                    <button class="dpad-btn" id="right">►</button>
+                    <button class="dpad-btn" id="down">▼</button>
                 </div>
             </div>
-            
-            <div class="controls-right">
-                <div class="action-buttons">
-                    <div class="action-row">
-                        <button class="action-btn" id="btn-flashlight">🔦</button>
-                        <button class="action-btn" id="btn-interact">✋</button>
-                    </div>
-                    <div class="action-row">
-                        <button class="action-btn" id="btn-run">🏃</button>
-                        <button class="action-btn" id="btn-pause">⏸️</button>
-                    </div>
+            <div class="actions">
+                <div class="action-row">
+                    <button class="action-btn" id="flashlight">🔦</button>
+                    <button class="action-btn" id="interact">✋</button>
+                </div>
+                <div class="action-row">
+                    <button class="action-btn" id="run">🏃</button>
+                    <button class="action-btn" id="pause">⏸️</button>
                 </div>
             </div>
         </div>
     </div>
     
     <!-- Chapter Screen -->
-    <div id="chapter-screen" class="hidden">
-        <h1 id="chapter-title">Capítulo 1</h1>
-        <h2 id="chapter-subtitle">La Entrada</h2>
+    <div id="chapterScreen">
+        <h1 id="chapTitle">Capítulo 1</h1>
+        <h2 id="chapSub">La Entrada</h2>
     </div>
     
-    <!-- Pause Menu -->
-    <div id="pause-menu">
-        <h2>⏸️ PAUSA</h2>
-        <div class="menu-buttons">
-            <button class="menu-btn" id="btn-resume">▶️ CONTINUAR</button>
-            <button class="menu-btn" id="btn-quit">🏠 MENÚ</button>
-        </div>
+    <!-- Pause -->
+    <div id="pause" class="overlay">
+        <h1>⏸️ PAUSA</h1>
+        <button class="btn" onclick="resume()">▶️ CONTINUAR</button>
+        <button class="btn" onclick="quit()">🏠 MENÚ</button>
     </div>
     
     <!-- Game Over -->
-    <div id="game-over">
+    <div id="gameOver" class="overlay">
         <h1>💀 GAME OVER</h1>
-        <p id="death-message">Has sido atrapado...</p>
-        <div class="menu-buttons">
-            <button class="menu-btn" id="btn-retry">🔄 REINTENTAR</button>
-            <button class="menu-btn" id="btn-home">🏠 MENÚ</button>
-        </div>
+        <p id="deathMsg">Has sido atrapado...</p>
+        <button class="btn" onclick="startGame()">🔄 REINTENTAR</button>
+        <button class="btn" onclick="quit()">🏠 MENÚ</button>
     </div>
     
     <!-- Victory -->
-    <div id="victory">
+    <div id="victory" class="overlay">
         <h1>🎉 ¡VICTORIA!</h1>
-        <p>Has escapado de la fábrica abandonada.</p>
-        <div class="menu-buttons">
-            <button class="menu-btn" id="btn-victory-menu">🏠 MENÚ</button>
-        </div>
+        <p>Has escapado de la fábrica.</p>
+        <button class="btn" onclick="quit()">🏠 MENÚ</button>
+    </div>
+    
+    <!-- Controls Info -->
+    <div id="controlsInfo" class="overlay">
+        <h1>🎮 CONTROLES</h1>
+        <p>WASD / Flechas: Mover</p>
+        <p>F: Linterna | E: Interactuar</p>
+        <p>ESPACIO: Correr | ESC: Pausa</p>
+        <button class="btn" onclick="hideControls()">Cerrar</button>
+    </div>
+    
+    <!-- Characters -->
+    <div id="charsInfo" class="overlay">
+        <h1>👹 PERSONAJES</h1>
+        <p>🧸 Boogo - Se teletransporta</p>
+        <p>🦁 Catstar - Ataca desde arriba</p>
+        <p>🤖 1028 - Robot traidor</p>
+        <p>🐀 Ratuile - Rata con emociones</p>
+        <p>🟢 Slimer - Deja rastro</p>
+        <p>👧 Emily - Boss final</p>
+        <button class="btn" onclick="hideChars()">Cerrar</button>
     </div>
 
     <script>
-        // Simple Game Engine
-        const TILE_SIZE = 32;
-        const PLAYER_SPEED = 3;
+        // Canvas setup
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let W, H;
+        
+        function resize() {
+            W = canvas.width = window.innerWidth;
+            H = canvas.height = window.innerHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
         
         // Game state
-        let gameState = 'menu';
+        let state = 'menu';
         let player = { x: 100, y: 100, health: 100, stamina: 100, battery: 100 };
         let enemies = [];
-        let level = [];
         let keys = {};
         let chapter = 1;
         
-        // Canvas setup
-        const canvas = document.getElementById('game-canvas');
-        const ctx = canvas.getContext('2d');
-        
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
-        
         // Input
-        window.addEventListener('keydown', (e) => {
+        window.addEventListener('keydown', e => {
             keys[e.code] = true;
             if (e.code === 'Escape') togglePause();
             if (e.code === 'KeyF') player.battery = player.battery > 0 ? 0 : 100;
         });
-        window.addEventListener('keyup', (e) => keys[e.code] = false);
+        window.addEventListener('keyup', e => keys[e.code] = false);
         
         // Touch controls
-        function setupTouchButton(id, keyCode) {
+        function touch(id, code, down = true) {
             const btn = document.getElementById(id);
             if (!btn) return;
-            
-            btn.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                keys[keyCode] = true;
-            });
-            btn.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                keys[keyCode] = false;
-            });
+            const fn = down ? 
+                () => keys[code] = true :
+                () => keys[code] = false;
+            btn.addEventListener('touchstart', e => { e.preventDefault(); keys[code] = true; });
+            btn.addEventListener('touchend', e => { e.preventDefault(); keys[code] = false; });
         }
         
-        setupTouchButton('btn-up', 'ArrowUp');
-        setupTouchButton('btn-down', 'ArrowDown');
-        setupTouchButton('btn-left', 'ArrowLeft');
-        setupTouchButton('btn-right', 'ArrowRight');
-        setupTouchButton('btn-flashlight', 'KeyF');
-        setupTouchButton('btn-interact', 'KeyE');
-        setupTouchButton('btn-run', 'Space');
+        touch('up', 'ArrowUp');
+        touch('down', 'ArrowDown');
+        touch('left', 'ArrowLeft');
+        touch('right', 'ArrowRight');
+        touch('flashlight', 'KeyF');
+        touch('interact', 'KeyE');
+        touch('run', 'Space');
+        document.getElementById('pause').addEventListener('touchstart', e => { e.preventDefault(); togglePause(); });
         
-        document.getElementById('btn-pause')?.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            togglePause();
-        });
-        
-        // Menu buttons
-        document.getElementById('btn-play').addEventListener('click', startGame);
-        document.getElementById('btn-resume').addEventListener('click', () => togglePause());
-        document.getElementById('btn-quit').addEventListener('click', () => {
-            document.getElementById('pause-menu').classList.remove('active');
-            showMenu();
-        });
-        document.getElementById('btn-retry').addEventListener('click', startGame);
-        document.getElementById('btn-home').addEventListener('click', showMenu);
-        document.getElementById('btn-victory-menu').addEventListener('click', showMenu);
-        
-        function showMenu() {
-            gameState = 'menu';
-            document.getElementById('main-menu').classList.remove('hidden');
-            document.getElementById('game-container').classList.remove('active');
-            document.getElementById('game-over').classList.remove('active');
-            document.getElementById('victory').classList.remove('active');
-        }
-        
+        // Menu functions
         function startGame() {
-            gameState = 'playing';
-            player = { x: 100, y: 100, health: 100, stamina: 100, battery: 100 };
+            console.log('Starting game...');
+            state = 'playing';
+            player = { x: W/2, y: H/2, health: 100, stamina: 100, battery: 100 };
             chapter = 1;
+            spawnEnemies();
             
-            document.getElementById('main-menu').classList.add('hidden');
-            document.getElementById('game-container').classList.add('active');
+            document.getElementById('menu').classList.add('hidden');
+            document.getElementById('game').classList.add('active');
+            document.getElementById('gameOver').classList.remove('active');
+            document.getElementById('victory').classList.remove('active');
             
-            generateLevel();
-            showChapterTitle();
+            showChapter();
         }
         
-        function generateLevel() {
-            level = [];
-            const width = Math.floor(canvas.width / TILE_SIZE) + 2;
-            const height = Math.floor(canvas.height / TILE_SIZE) + 2;
-            
-            for (let y = 0; y < height; y++) {
-                const row = [];
-                for (let x = 0; x < width; x++) {
-                    if (x === 0 || x === width - 1 || y === 0 || y === height - 1) {
-                        row.push(1); // Wall
-                    } else {
-                        row.push(0); // Floor
-                    }
-                }
-                level.push(row);
-            }
-            
-            // Spawn enemies
+        function showChapter() {
+            const names = ['La Entrada', 'El Almacén', 'El Laboratorio', 'La Sala de Emily'];
+            document.getElementById('chapTitle').textContent = 'Capítulo ' + chapter;
+            document.getElementById('chapSub').textContent = names[chapter-1] || 'Final';
+            document.getElementById('chapterScreen').classList.add('active');
+            setTimeout(() => document.getElementById('chapterScreen').classList.remove('active'), 2000);
+        }
+        
+        function spawnEnemies() {
             enemies = [];
-            for (let i = 0; i < 3 + chapter; i++) {
+            const count = 2 + chapter;
+            const types = ['🧸', '🦁', '🤖', '🐀', '🟢'];
+            for (let i = 0; i < count; i++) {
                 enemies.push({
-                    x: Math.random() * (canvas.width - 100) + 50,
-                    y: Math.random() * (canvas.height - 100) + 50,
-                    emoji: ['🧸', '🦁', '🤖', '🐀', '🟢'][Math.floor(Math.random() * 5)],
-                    speed: 1 + chapter * 0.5
+                    x: Math.random() * (W - 200) + 100,
+                    y: Math.random() * (H - 200) + 100,
+                    emoji: types[i % types.length],
+                    speed: 1 + chapter * 0.3,
+                    angle: Math.random() * Math.PI * 2
                 });
             }
         }
         
-        function showChapterTitle() {
-            const screen = document.getElementById('chapter-screen');
-            document.getElementById('chapter-title').textContent = `Capítulo ${chapter}`;
-            document.getElementById('chapter-subtitle').textContent = ['La Entrada', 'El Almacén', 'El Laboratorio', 'La Sala de Emily'][chapter - 1] || 'Final';
-            screen.classList.remove('hidden');
-            
-            setTimeout(() => {
-                screen.classList.add('hidden');
-            }, 2000);
-        }
-        
         function togglePause() {
-            if (gameState === 'playing') {
-                gameState = 'paused';
-                document.getElementById('pause-menu').classList.add('active');
-            } else if (gameState === 'paused') {
-                gameState = 'playing';
-                document.getElementById('pause-menu').classList.remove('active');
+            if (state === 'playing') {
+                state = 'paused';
+                document.getElementById('pause').classList.add('active');
+            } else if (state === 'paused') {
+                state = 'playing';
+                document.getElementById('pause').classList.remove('active');
             }
         }
         
-        function showGameOver(msg) {
-            gameState = 'gameover';
-            document.getElementById('death-message').textContent = msg;
-            document.getElementById('game-over').classList.add('active');
+        function resume() {
+            state = 'playing';
+            document.getElementById('pause').classList.remove('active');
         }
         
-        function showVictory() {
-            gameState = 'victory';
-            document.getElementById('victory').classList.add('active');
+        function quit() {
+            state = 'menu';
+            document.getElementById('menu').classList.remove('hidden');
+            document.getElementById('game').classList.remove('active');
+            document.getElementById('pause').classList.remove('active');
+            document.getElementById('gameOver').classList.remove('active');
+            document.getElementById('victory').classList.remove('active');
+        }
+        
+        function showControls() {
+            document.getElementById('controlsInfo').classList.add('active');
+        }
+        
+        function hideControls() {
+            document.getElementById('controlsInfo').classList.remove('active');
+        }
+        
+        function showChars() {
+            document.getElementById('charsInfo').classList.add('active');
+        }
+        
+        function hideChars() {
+            document.getElementById('charsInfo').classList.remove('active');
         }
         
         // Game loop
         function update() {
-            if (gameState !== 'playing') return;
+            if (state !== 'playing') return;
             
-            // Player movement
+            // Movement
             let dx = 0, dy = 0;
-            if (keys['ArrowUp'] || keys['KeyW']) dy -= PLAYER_SPEED;
-            if (keys['ArrowDown'] || keys['KeyS']) dy += PLAYER_SPEED;
-            if (keys['ArrowLeft'] || keys['KeyA']) dx -= PLAYER_SPEED;
-            if (keys['ArrowRight'] || keys['KeyD']) dx += PLAYER_SPEED;
+            if (keys['ArrowUp'] || keys['KeyW']) dy -= 3;
+            if (keys['ArrowDown'] || keys['KeyS']) dy += 3;
+            if (keys['ArrowLeft'] || keys['KeyA']) dx -= 3;
+            if (keys['ArrowRight'] || keys['KeyD']) dx += 3;
             
             // Run
-            if (keys['Space'] && player.stamina > 0 && (dx !== 0 || dy !== 0)) {
+            if ((keys['Space'] || keys['ShiftLeft']) && player.stamina > 0 && (dx || dy)) {
                 player.stamina -= 0.5;
                 dx *= 1.5;
                 dy *= 1.5;
             } else {
-                player.stamina = Math.min(100, player.stamina + 0.3);
+                player.stamina = Math.min(100, player.stamina + 0.2);
             }
             
-            player.x = Math.max(TILE_SIZE, Math.min(canvas.width - TILE_SIZE * 2, player.x + dx));
-            player.y = Math.max(TILE_SIZE, Math.min(canvas.height - TILE_SIZE * 2, player.y + dy));
+            player.x = Math.max(50, Math.min(W - 50, player.x + dx));
+            player.y = Math.max(50, Math.min(H - 50, player.y + dy));
             
-            // Battery drain
-            if (player.battery > 0) {
-                player.battery -= 0.05;
-            }
+            // Battery
+            player.battery = Math.max(0, player.battery - 0.03);
             
-            // Enemy AI
-            enemies.forEach(enemy => {
-                const dist = Math.hypot(enemy.x - player.x, enemy.y - player.y);
-                if (dist < 200) {
-                    const angle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
-                    enemy.x += Math.cos(angle) * enemy.speed;
-                    enemy.y += Math.sin(angle) * enemy.speed;
+            // Enemies
+            enemies.forEach(e => {
+                const dist = Math.hypot(player.x - e.x, player.y - e.y);
+                if (dist < 300) {
+                    e.angle = Math.atan2(player.y - e.y, player.x - e.x);
                 }
+                e.x += Math.cos(e.angle) * e.speed;
+                e.y += Math.sin(e.angle) * e.speed;
                 
                 // Collision
-                if (dist < 30) {
-                    player.health -= 1;
-                    if (player.health <= 0) {
-                        showGameOver(`${enemy.emoji} te atrapó...`);
-                    }
+                if (dist < 40) {
+                    player.health -= 0.5;
+                    // Push back
+                    const pushAngle = Math.atan2(e.y - player.y, e.x - player.x);
+                    e.x += Math.cos(pushAngle) * 20;
+                    e.y += Math.sin(pushAngle) * 20;
                 }
             });
             
+            // Check game over
+            if (player.health <= 0) {
+                state = 'gameover';
+                const msgs = ['💀 Has sido atrapado...', '🧸 Boogo te encontró...', '🦁 Catstar te atacó...'];
+                document.getElementById('deathMsg').textContent = msgs[Math.floor(Math.random() * msgs.length)];
+                document.getElementById('gameOver').classList.add('active');
+            }
+            
             // Update HUD
-            document.getElementById('health-fill').style.width = player.health + '%';
-            document.getElementById('stamina-fill').style.width = player.stamina + '%';
-            document.getElementById('battery-fill').style.width = player.battery + '%';
+            document.getElementById('healthBar').style.width = player.health + '%';
+            document.getElementById('staminaBar').style.width = player.stamina + '%';
+            document.getElementById('batteryBar').style.width = player.battery + '%';
+            document.getElementById('chapter').textContent = 'Capítulo ' + chapter;
         }
         
         function draw() {
-            // Clear
             ctx.fillStyle = '#0a0a0a';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillRect(0, 0, W, H);
             
-            if (gameState !== 'playing' && gameState !== 'paused') return;
+            if (state !== 'playing' && state !== 'paused') return;
             
-            // Draw floor
+            // Floor
             ctx.fillStyle = '#1a1a1a';
-            for (let y = 0; y < level.length; y++) {
-                for (let x = 0; x < level[y].length; x++) {
-                    if (level[y][x] === 0) {
-                        ctx.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE - 1, TILE_SIZE - 1);
-                    }
+            for (let x = 0; x < W; x += 40) {
+                for (let y = 0; y < H; y += 40) {
+                    ctx.fillRect(x, y, 38, 38);
                 }
             }
             
-            // Draw player
-            ctx.font = '32px Arial';
+            // Enemies
+            ctx.font = '36px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText('👤', player.x, player.y);
-            
-            // Draw flashlight effect
-            if (player.battery > 0) {
-                const gradient = ctx.createRadialGradient(player.x, player.y, 0, player.x, player.y, 150);
-                gradient.addColorStop(0, 'rgba(255, 255, 200, 0.3)');
-                gradient.addColorStop(1, 'rgba(255, 255, 200, 0)');
-                ctx.fillStyle = gradient;
-                ctx.beginPath();
-                ctx.arc(player.x, player.y, 150, 0, Math.PI * 2);
-                ctx.fill();
-            }
-            
-            // Draw enemies
-            enemies.forEach(enemy => {
-                const dist = Math.hypot(enemy.x - player.x, enemy.y - player.y);
-                if (dist < 200 || player.battery > 20) {
-                    ctx.fillText(enemy.emoji, enemy.x, enemy.y);
+            enemies.forEach(e => {
+                const dist = Math.hypot(player.x - e.x, player.y - e.y);
+                if (dist < 250 || player.battery > 30) {
+                    ctx.fillText(e.emoji, e.x, e.y);
                 }
             });
             
-            // Darkness overlay
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // Player
+            ctx.fillText('👤', player.x, player.y);
             
-            // Re-draw visible area
+            // Flashlight
             if (player.battery > 0) {
+                const r = Math.min(150, player.battery * 1.5);
                 ctx.save();
                 ctx.globalCompositeOperation = 'destination-out';
-                const gradient = ctx.createRadialGradient(player.x, player.y, 0, player.x, player.y, 150);
-                gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-                gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-                ctx.fillStyle = gradient;
+                const grad = ctx.createRadialGradient(player.x, player.y, 0, player.x, player.y, r);
+                grad.addColorStop(0, 'rgba(0,0,0,1)');
+                grad.addColorStop(1, 'rgba(0,0,0,0)');
+                ctx.fillStyle = grad;
                 ctx.beginPath();
-                ctx.arc(player.x, player.y, 150, 0, Math.PI * 2);
+                ctx.arc(player.x, player.y, r, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.restore();
             }
         }
         
-        function gameLoop() {
+        function loop() {
             update();
             draw();
-            requestAnimationFrame(gameLoop);
+            requestAnimationFrame(loop);
         }
         
-        // Start
-        gameLoop();
-        
-        console.log('🎮 Game loaded successfully!');
+        loop();
+        console.log('🎮 Game ready!');
     </script>
 </body>
 </html>
